@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+enum VaultType {
+  personal
+  organization
+}
+
+enum MemberRole {
+  owner
+  admin
+  manager
+  member
+  viewer
+  guest
+}
+
+enum ItemType {
+  note
+  pdf
+  image
+  screenshot
+  link
+  voice_note
+  video_transcript
+  email_import
+  chat_import
+  spreadsheet
+  code_snippet
+  meeting_note
+  decision_record
+  task_note
+  contact_note
+  scanned_document
+}
+
+enum Visibility {
+  private
+  shared
+  organization
+}
+
+enum SourceTrust {
+  official
+  draft
+  outdated
+  personal_note
+  imported
+  unknown
+}
+
+model User {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String           @unique
+  passwordHash    String?
+  authProvider    String?
+  plan            String           @default("free")
+  settings        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  ownedVaults     Vault[]          @relation("VaultOwner")
+  organizations   Organization[]   @relation("OrganizationOwner")
+  memberships     Member[]
+  createdItems    Item[]           @relation("ItemCreator")
+  conversations   AIConversation[]
+  permissions     Permission[]
+  auditLogs       AuditLog[]
+}
+
+model Vault {
+  id                 String           @id @default(cuid())
+  ownerId            String
+  organizationId     String?
+  type               VaultType
+  name               String
+  encryptionSettings Json?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  owner              User             @relation("VaultOwner", fields: [ownerId], references: [id])
+  organization       Organization?    @relation(fields: [organizationId], references: [id])
+  spaces             Space[]
+  tags               Tag[]
+  conversations      AIConversation[]
+  auditLogs          AuditLog[]
+}
+
+model Organization {
+  id            String    @id @default(cuid())
+  name          String
+  ownerId       String
+  plan          String    @default("team")
+  billingStatus String    @default("trial")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  owner         User      @relation("OrganizationOwner", fields: [ownerId], references: [id])
+  members       Member[]
+  vaults        Vault[]
+}
+
+model Member {
+  id             String      @id @default(cuid())
+  organizationId String
+  userId         String
+  role           MemberRole
+  permissions    Json?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([organizationId, userId])
+}
+
+model Space {
+  id          String      @id @default(cuid())
+  vaultId     String
+  name        String
+  description String?
+  icon        String?
+  visibility  Visibility  @default(private)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  vault       Vault       @relation(fields: [vaultId], references: [id])
+  collections Collection[]
+}
+
+model Collection {
+  id                 String       @id @default(cuid())
+  spaceId            String
+  name               String
+  description        String?
+  parentCollectionId String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  space              Space        @relation(fields: [spaceId], references: [id])
+  parentCollection   Collection?  @relation("CollectionTree", fields: [parentCollectionId], references: [id])
+  childCollections   Collection[] @relation("CollectionTree")
+  items              Item[]
+}
+
+model Item {
+  id             String          @id @default(cuid())
+  collectionId   String
+  title          String
+  type           ItemType
+  content        String?
+  fileUrl        String?
+  metadata       Json?
+  source         String?
+  createdById    String
+  trustLevel     SourceTrust     @default(unknown)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  collection     Collection      @relation(fields: [collectionId], references: [id])
+  createdBy      User            @relation("ItemCreator", fields: [createdById], references: [id])
+  embeddings     Embedding[]
+  itemTags       ItemTag[]
+  permissions    Permission[]
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  vaultId    String
+  name      String
+  color     String?
+  createdAt DateTime  @default(now())
+  vault     Vault     @relation(fields: [vaultId], references: [id])
+  itemTags  ItemTag[]
+
+  @@unique([vaultId, name])
+}
+
+model ItemTag {
+  itemId String
+  tagId  String
+  item   Item @relation(fields: [itemId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([itemId, tagId])
+}
+
+model Embedding {
+  id        String   @id @default(cuid())
+  itemId     String
+  chunkId   String
+  vector    Unsupported("vector")
+  textChunk String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id])
+
+  @@unique([itemId, chunkId])
+}
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  vaultId   String
+  userId    String
+  title     String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  vault     Vault       @relation(fields: [vaultId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  messages  AIMessage[]
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  sourcesUsed    Json?
+  createdAt      DateTime       @default(now())
+  conversation   AIConversation @relation(fields: [conversationId], references: [id])
+}
+
+model Permission {
+  id           String   @id @default(cuid())
+  resourceType String
+  resourceId   String
+  userId       String
+  role         String
+  accessLevel  String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  vaultId      String
+  userId       String
+  action       String
+  resourceType String
+  resourceId   String
+  timestamp    DateTime @default(now())
+  metadata     Json?
+  vault        Vault    @relation(fields: [vaultId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+}
