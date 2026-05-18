@@ -1,12 +1,32 @@
-export default function SignInPage() {
+import Link from "next/link";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { signInAction } from "@/app/auth/actions";
+
+type Props = {
+  searchParams?: {
+    error?: string;
+  };
+};
+
+export default function SignInPage({ searchParams }: Props) {
   return (
     <main className="mx-auto flex min-h-screen max-w-md items-center px-6">
-      <section className="w-full rounded-[2rem] bg-white/80 p-8 shadow-vault">
-        <h1 className="text-3xl font-semibold">Sign in</h1>
-        <p className="mt-3 text-sm text-steel">
-          Connect auth here. MVP should support email login and later SSO.
+      <div className="w-full">
+        <AuthCard
+          title="Sign in"
+          description="Use the local MVP account system to open your private vault."
+          actionLabel="Sign in"
+          action={signInAction}
+          mode="sign-in"
+          error={searchParams?.error}
+        />
+        <p className="mt-4 text-center text-sm text-steel">
+          Need an account?{" "}
+          <Link href="/auth/sign-up" className="text-amber">
+            Create one
+          </Link>
         </p>
-      </section>
+      </div>
     </main>
   );
 }

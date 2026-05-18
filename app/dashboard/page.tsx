@@ -1,6 +1,7 @@
 import { createNoteAction } from "@/app/actions";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { requireUser } from "@/lib/auth";
 import { ItemCard } from "@/components/vault/ItemCard";
 import { SpaceCard } from "@/components/vault/SpaceCard";
 import { UploadDropzone } from "@/components/vault/UploadDropzone";
@@ -9,6 +10,7 @@ import { suggestedQuestions } from "@/lib/mock-data";
 import { getVaultSummary } from "@/services/vaultService";
 
 export default async function DashboardPage() {
+  await requireUser();
   const { vault, spaces, collections, items, insights } = await getVaultSummary();
   const pinnedSpaces = spaces.filter((space) => space.pinned);
   const staleSpaces = spaces.filter((space) => space.stale).length;

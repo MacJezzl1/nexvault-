@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
 
 const features = [
   "Upload notes, PDFs, and screenshots into one private vault.",
@@ -6,7 +7,9 @@ const features = [
   "Separate personal memory from team memory without rebuilding."
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
+
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-12">
       <header className="mb-20 flex items-center justify-between">
@@ -17,10 +20,10 @@ export default function HomePage() {
           </h1>
         </div>
         <Link
-          href="/dashboard"
+          href={user ? "/dashboard" : "/auth/sign-in"}
           className="rounded-full bg-ink px-5 py-3 text-sm font-medium text-sand"
         >
-          Open MVP
+          {user ? "Open Vault" : "Sign in"}
         </Link>
       </header>
 
@@ -56,6 +59,16 @@ export default function HomePage() {
             Built to prove one thing first: a user uploads important information,
             asks a question, and gets a useful answer with sources.
           </p>
+          {!user ? (
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/auth/sign-in" className="rounded-full bg-sand px-4 py-2 text-sm text-ink">
+                Sign in
+              </Link>
+              <Link href="/auth/sign-up" className="rounded-full border border-sand/30 px-4 py-2 text-sm">
+                Create account
+              </Link>
+            </div>
+          ) : null}
         </div>
       </section>
     </main>
