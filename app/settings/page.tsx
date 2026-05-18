@@ -1,4 +1,11 @@
-export default function SettingsPage() {
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { getThemeFromCookies } from "@/lib/theme";
+import { getVaultSummary } from "@/services/vaultService";
+
+export default async function SettingsPage() {
+  const theme = getThemeFromCookies();
+  const { plan, usage } = await getVaultSummary();
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="text-4xl font-semibold">Settings</h1>
@@ -31,6 +38,26 @@ export default function SettingsPage() {
             </a>
             <a href="/search" className="rounded-full bg-sand px-4 py-2 text-sm">
               Review search filters
+            </a>
+          </div>
+        </section>
+        <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
+          <h2 className="text-xl font-semibold">Theme</h2>
+          <p className="mt-3 text-sm leading-6 text-steel">
+            Switch between light and dark mode. The selection is stored locally in a cookie.
+          </p>
+          <div className="mt-4">
+            <ThemeToggle theme={theme} returnTo="/settings" />
+          </div>
+        </section>
+        <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
+          <h2 className="text-xl font-semibold">Plan and limits</h2>
+          <p className="mt-3 text-sm leading-6 text-steel">
+            Current plan: {plan.name}. You are using {usage.items} items and {usage.spaces} spaces.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href="/pricing" className="rounded-full bg-ink px-4 py-2 text-sm text-sand">
+              View pricing
             </a>
           </div>
         </section>

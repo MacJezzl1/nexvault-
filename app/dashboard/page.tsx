@@ -11,7 +11,7 @@ import { getVaultSummary } from "@/services/vaultService";
 
 export default async function DashboardPage() {
   await requireUser();
-  const { vault, spaces, collections, items, insights } = await getVaultSummary();
+  const { vault, spaces, collections, items, insights, plan, usage } = await getVaultSummary();
   const pinnedSpaces = spaces.filter((space) => space.pinned);
   const staleSpaces = spaces.filter((space) => space.stale).length;
 
@@ -31,7 +31,7 @@ export default async function DashboardPage() {
             staleCount={staleSpaces}
             healthScore={vault.healthScore}
           />
-          <section className="rounded-[2rem] bg-white/75 p-6 shadow-vault">
+          <section className="rounded-[2rem] bg-white/75 p-6 shadow-vault dark:bg-neutral-900/75">
             <p className="text-sm uppercase tracking-[0.3em] text-steel">Ask Vault</p>
             <h2 className="mt-4 text-2xl font-semibold">Suggested questions</h2>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -48,6 +48,22 @@ export default async function DashboardPage() {
             <p className="mt-6 text-sm leading-6 text-steel">{vault.weeklyDigest}</p>
           </section>
         </div>
+
+        <section className="mt-8 rounded-[2rem] bg-white/80 p-6 shadow-vault dark:bg-neutral-900/80">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-steel">Plan usage</p>
+              <h2 className="mt-2 text-2xl font-semibold">{plan.name} plan</h2>
+              <p className="mt-2 text-sm text-steel">
+                {usage.items} / {plan.limits.items} items, {usage.spaces} / {plan.limits.spaces} spaces,{" "}
+                {usage.monthlyQuestionsUsed} / {plan.limits.monthlyQuestions} AI questions used.
+              </p>
+            </div>
+            <a href="/pricing" className="rounded-full bg-ink px-4 py-2 text-sm text-sand dark:bg-sand dark:text-ink">
+              Manage plan
+            </a>
+          </div>
+        </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <UploadDropzone

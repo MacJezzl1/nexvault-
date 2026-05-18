@@ -7,6 +7,7 @@ export type StoredUser = {
   name: string;
   email: string;
   passwordHash: string;
+  plan: "free" | "pro" | "team" | "business";
   createdAt: string;
 };
 
@@ -30,6 +31,7 @@ const defaultAuthState: AuthState = {
       name: "Founder",
       email: "founder@nexvault.local",
       passwordHash: createHash("sha256").update("demo1234").digest("hex"),
+      plan: "free",
       createdAt: new Date("2026-01-01T00:00:00.000Z").toISOString()
     }
   ],
@@ -48,7 +50,14 @@ async function ensureAuthStore() {
 async function readAuthState() {
   await ensureAuthStore();
   const raw = await fs.readFile(authPath, "utf8");
-  return JSON.parse(raw) as AuthState;
+  const parsed = JSON.parse(raw) as AuthState;
+  return {
+    ...parsed,
+    users: parsed.users.map((user) => ({
+      ...user,
+      plan: user.plan ?? "free"
+    }))
+  };
 }
 
 async function writeAuthState(state: AuthState) {
@@ -84,6 +93,7 @@ export async function createUser(input: { name: string; email: string; password:
     name: input.name,
     email: input.email.toLowerCase(),
     passwordHash: hashPassword(input.password),
+    plan: "free",
     createdAt: new Date().toISOString()
   };
 
@@ -116,5 +126,14 @@ export async function getSession(token: string) {
 export async function deleteSession(token: string) {
   const state = await readAuthState();
   state.sessions = state.sessions.filter((session) => session.token !== token);
+  await writeAuthState(state);
+}
+
+export async function updateUserPlan(
+  userId: string,
+  plan: "free" | "pro" | "team" | "business"
+) {
+  const state = await readAuthState();
+  state.users = state.users.map((user) => (user.id === userId ? { ...user, plan } : user));
   await writeAuthState(state);
 }

@@ -67,6 +67,9 @@ export default async function HomePage() {
               <Link href="/auth/sign-up" className="rounded-full border border-sand/30 px-4 py-2 text-sm">
                 Create account
               </Link>
+              <Link href="/pricing" className="rounded-full border border-sand/30 px-4 py-2 text-sm">
+                Pricing
+              </Link>
             </div>
           ) : null}
         </div>

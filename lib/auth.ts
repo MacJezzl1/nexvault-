@@ -23,7 +23,8 @@ export async function getCurrentUser() {
   return {
     id: user.id,
     email: user.email,
-    name: user.name
+    name: user.name,
+    plan: user.plan
   };
 }
 

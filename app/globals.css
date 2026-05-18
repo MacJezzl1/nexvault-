@@ -4,13 +4,35 @@
 
 :root {
   color-scheme: light;
+  --bg-base: #f5efe6;
+  --bg-surface: rgba(255, 255, 255, 0.8);
+  --bg-panel: rgba(255, 255, 255, 0.6);
+  --text-main: #111111;
+  --text-muted: #5f6f78;
+  --bg-gradient-a: rgba(184, 92, 56, 0.12);
+  --bg-gradient-b: #fbf7f1;
+  --bg-gradient-c: #f0e8dc;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg-base: #111315;
+  --bg-surface: rgba(23, 25, 28, 0.82);
+  --bg-panel: rgba(23, 25, 28, 0.68);
+  --text-main: #f5efe6;
+  --text-muted: #b1bcc2;
+  --bg-gradient-a: rgba(65, 93, 67, 0.18);
+  --bg-gradient-b: #17191c;
+  --bg-gradient-c: #111315;
 }
 
 body {
-  @apply bg-sand text-ink antialiased;
+  @apply antialiased;
+  background-color: var(--bg-base);
+  color: var(--text-main);
   background-image:
-    radial-gradient(circle at top left, rgba(184, 92, 56, 0.12), transparent 30%),
-    linear-gradient(180deg, #fbf7f1 0%, #f0e8dc 100%);
+    radial-gradient(circle at top left, var(--bg-gradient-a), transparent 30%),
+    linear-gradient(180deg, var(--bg-gradient-b) 0%, var(--bg-gradient-c) 100%);
 }
 
 a {
