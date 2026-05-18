@@ -1,4 +1,4 @@
-import { updatePlanAction } from "@/app/preferences/actions";
+import { startCheckoutAction } from "@/app/billing/actions";
 import type { PlanDefinition } from "@/lib/plans";
 
 type Props = {
@@ -44,15 +44,14 @@ export function PlanCard({ plan, currentPlanId, signedIn }: Props) {
         <p>Spaces: {plan.limits.spaces.toLocaleString()}</p>
       </div>
       {signedIn ? (
-        <form action={updatePlanAction} className="mt-5">
+        <form action={startCheckoutAction} className="mt-5">
           <input type="hidden" name="plan" value={plan.id} />
-          <input type="hidden" name="returnTo" value="/pricing" />
           <button
             type="submit"
             disabled={isCurrent}
             className="rounded-full bg-ink px-4 py-2 text-sm text-sand disabled:opacity-50 dark:bg-sand dark:text-ink"
           >
-            {isCurrent ? "Selected" : `Choose ${plan.name}`}
+            {isCurrent ? "Selected" : plan.id === "free" ? "Switch to Free" : `Start ${plan.name}`}
           </button>
         </form>
       ) : (

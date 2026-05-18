@@ -1,10 +1,12 @@
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { getEnvironmentStatus } from "@/lib/env";
 import { getThemeFromCookies } from "@/lib/theme";
 import { getVaultSummary } from "@/services/vaultService";
 
 export default async function SettingsPage() {
   const theme = getThemeFromCookies();
   const { plan, usage } = await getVaultSummary();
+  const env = getEnvironmentStatus();
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -59,6 +61,18 @@ export default async function SettingsPage() {
             <a href="/pricing" className="rounded-full bg-ink px-4 py-2 text-sm text-sand">
               View pricing
             </a>
+          </div>
+        </section>
+        <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
+          <h2 className="text-xl font-semibold">Production readiness</h2>
+          <div className="mt-3 space-y-2 text-sm leading-6 text-steel">
+            {env.checks.map((check) => (
+              <p key={check.name}>
+                {check.name}: {check.configured ? "configured" : "missing"}.
+                {" "}
+                {check.detail}
+              </p>
+            ))}
           </div>
         </section>
         <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
