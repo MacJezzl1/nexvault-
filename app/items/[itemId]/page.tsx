@@ -1,3 +1,4 @@
+import { deleteItemAction } from "@/app/actions";
 import { MetadataPanel } from "@/components/editor/MetadataPanel";
 import { TagPicker } from "@/components/editor/TagPicker";
 import { ItemCard } from "@/components/vault/ItemCard";
@@ -43,6 +44,17 @@ export default async function ItemPage({ params }: Props) {
             sensitivity={item.sensitivity}
             createdAt={formatDate(item.createdAt)}
           />
+          <form action={deleteItemAction} className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
+            <input type="hidden" name="itemId" value={item.id} />
+            <input type="hidden" name="spaceId" value={item.spaceId} />
+            <p className="text-sm uppercase tracking-[0.3em] text-steel">Danger zone</p>
+            <p className="mt-3 text-sm leading-6 text-steel">
+              Remove this item from the local vault store.
+            </p>
+            <button type="submit" className="mt-4 rounded-full bg-amber px-4 py-2 text-sm text-sand">
+              Delete item
+            </button>
+          </form>
           <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
             <p className="text-sm uppercase tracking-[0.3em] text-steel">Tags</p>
             <div className="mt-4">

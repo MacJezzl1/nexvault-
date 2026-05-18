@@ -1,4 +1,5 @@
-import { createNoteAction } from "@/app/actions";
+import { createCollectionAction, createNoteAction } from "@/app/actions";
+import { CollectionCreateForm } from "@/components/vault/CollectionCreateForm";
 import { CollectionTree } from "@/components/vault/CollectionTree";
 import { ItemCard } from "@/components/vault/ItemCard";
 import { UploadDropzone } from "@/components/vault/UploadDropzone";
@@ -35,6 +36,13 @@ export default async function SpaceDetailPage({ params }: Props) {
             id: collection.id,
             name: collection.name
           }))}
+        />
+      </div>
+      <div className="mt-6">
+        <CollectionCreateForm
+          action={createCollectionAction}
+          spaces={[{ id: space.id, name: space.name }]}
+          defaultSpaceId={space.id}
         />
       </div>
       <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">

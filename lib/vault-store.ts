@@ -197,6 +197,38 @@ export async function createSpace(input: {
   return newSpace;
 }
 
+export async function createCollection(input: {
+  spaceId: string;
+  name: string;
+  description: string;
+}) {
+  const state = await readVaultState();
+  const collectionId = buildId("collection", `${input.spaceId}-${input.name}`);
+
+  const newCollection: CollectionRecord = {
+    id: collectionId,
+    spaceId: input.spaceId,
+    name: input.name,
+    description: input.description
+  };
+
+  state.collections.unshift(newCollection);
+  state.timeline.unshift({
+    id: buildId("event", `${collectionId}-${Date.now()}`),
+    date: new Date().toISOString(),
+    title: `Created ${input.name} collection`,
+    description: `Added a new collection inside its parent space.`,
+    type: "upload",
+    spaceId: input.spaceId
+  });
+
+  recalculateWeeklyDigest(state);
+  recalculateHealthScore(state);
+  await writeVaultState(state);
+
+  return newCollection;
+}
+
 export async function createNote(input: {
   title: string;
   content: string;
@@ -249,4 +281,34 @@ export async function createNote(input: {
   await writeVaultState(state);
 
   return newItem;
+}
+
+export async function deleteItem(itemId: string) {
+  const state = await readVaultState();
+  const item = state.items.find((candidate) => candidate.id === itemId);
+
+  if (!item) {
+    return null;
+  }
+
+  state.items = state.items.filter((candidate) => candidate.id !== itemId);
+  state.timeline.unshift({
+    id: buildId("event", `${itemId}-deleted-${Date.now()}`),
+    date: new Date().toISOString(),
+    title: `Deleted ${item.title}`,
+    description: `Removed ${item.title} from the vault.`,
+    type: "upload",
+    spaceId: item.spaceId
+  });
+
+  recalculateStaleSpaces(state);
+  recalculateWeeklyDigest(state);
+  recalculateHealthScore(state);
+  await writeVaultState(state);
+
+  return item;
+}
+
+export async function exportVaultState() {
+  return readVaultState();
 }

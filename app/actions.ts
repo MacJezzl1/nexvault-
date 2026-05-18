@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createNote, createSpace } from "@/lib/vault-store";
+import { redirect } from "next/navigation";
+import { createCollection, createNote, createSpace, deleteItem } from "@/lib/vault-store";
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -52,4 +53,47 @@ export async function createNoteAction(formData: FormData) {
   revalidatePath("/timeline");
   revalidatePath("/insights");
   revalidatePath("/search");
+}
+
+export async function createCollectionAction(formData: FormData) {
+  const spaceId = getString(formData, "spaceId");
+  const name = getString(formData, "name");
+  const description = getString(formData, "description");
+
+  if (!spaceId || !name || !description) {
+    return;
+  }
+
+  await createCollection({
+    spaceId,
+    name,
+    description
+  });
+
+  revalidatePath("/spaces");
+  revalidatePath(`/spaces/${spaceId}`);
+  revalidatePath("/vault");
+}
+
+export async function deleteItemAction(formData: FormData) {
+  const itemId = getString(formData, "itemId");
+  const spaceId = getString(formData, "spaceId");
+
+  if (!itemId) {
+    return;
+  }
+
+  await deleteItem(itemId);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/vault");
+  revalidatePath("/spaces");
+  if (spaceId) {
+    revalidatePath(`/spaces/${spaceId}`);
+  }
+  revalidatePath("/timeline");
+  revalidatePath("/insights");
+  revalidatePath("/search");
+
+  redirect(spaceId ? `/spaces/${spaceId}` : "/vault");
 }
