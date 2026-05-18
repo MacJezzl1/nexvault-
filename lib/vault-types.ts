@@ -31,6 +31,15 @@ export type ItemRecord = {
   source?: string;
 };
 
+export type RetrievalScope = {
+  query?: string;
+  spaceId?: string;
+  type?: ItemRecord["type"];
+  tag?: string;
+  trustLevel?: ItemRecord["trustLevel"];
+  sensitivity?: ItemRecord["sensitivity"];
+};
+
 export type CollectionRecord = {
   id: string;
   spaceId: string;
@@ -70,7 +79,10 @@ export type ConversationAnswer = {
   confidence: "high" | "medium" | "low";
   citations: Array<{
     itemId: string;
+    title: string;
     quote: string;
+    spaceName: string;
+    itemType: ItemRecord["type"];
   }>;
   followUps: string[];
 };

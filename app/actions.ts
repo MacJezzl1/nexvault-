@@ -34,6 +34,7 @@ export async function createNoteAction(formData: FormData) {
   const spaceId = getString(formData, "spaceId");
   const collectionId = getString(formData, "collectionId");
   const type = getString(formData, "type");
+  const source = getString(formData, "source");
 
   if (!title || !content || !spaceId) {
     return;
@@ -44,7 +45,8 @@ export async function createNoteAction(formData: FormData) {
     content,
     spaceId,
     collectionId: collectionId || undefined,
-    type: (type as "note" | "meeting_note" | "decision_record") || "note"
+    type: (type as "note" | "pdf" | "image" | "meeting_note" | "decision_record") || "note",
+    source: source || undefined
   });
 
   revalidatePath("/dashboard");

@@ -43,7 +43,25 @@ export default async function ItemPage({ params }: Props) {
             trustLevel={item.trustLevel}
             sensitivity={item.sensitivity}
             createdAt={formatDate(item.createdAt)}
+            source={item.source}
           />
+          <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
+            <p className="text-sm uppercase tracking-[0.3em] text-steel">AI actions</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href={`/ask?q=${encodeURIComponent(`What does this item say about ${item.tags[0] ?? item.title}?`)}&spaceId=${encodeURIComponent(item.spaceId)}&type=${encodeURIComponent(item.type)}`}
+                className="rounded-full bg-ink px-4 py-2 text-sm text-sand"
+              >
+                Ask about this source
+              </a>
+              <a
+                href={`/search?q=${encodeURIComponent(item.title)}&spaceId=${encodeURIComponent(item.spaceId)}`}
+                className="rounded-full bg-sand px-4 py-2 text-sm"
+              >
+                Search related evidence
+              </a>
+            </div>
+          </section>
           <form action={deleteItemAction} className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
             <input type="hidden" name="itemId" value={item.id} />
             <input type="hidden" name="spaceId" value={item.spaceId} />

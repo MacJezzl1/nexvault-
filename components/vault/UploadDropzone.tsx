@@ -52,9 +52,16 @@ export function UploadDropzone({ action, spaces, collections }: Props) {
           defaultValue="note"
         >
           <option value="note">Note</option>
+          <option value="pdf">PDF import</option>
+          <option value="image">Image / screenshot</option>
           <option value="meeting_note">Meeting note</option>
           <option value="decision_record">Decision record</option>
         </select>
+        <input
+          name="source"
+          className="rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none"
+          placeholder="Source URL or origin label (optional)"
+        />
         <textarea
           name="content"
           className="min-h-[180px] rounded-[1.5rem] border border-black/10 bg-white px-4 py-3 outline-none"

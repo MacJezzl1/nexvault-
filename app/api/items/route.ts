@@ -13,7 +13,8 @@ export async function POST(request: Request) {
         content?: string;
         spaceId?: string;
         collectionId?: string;
-        type?: "note" | "meeting_note" | "decision_record";
+        type?: "note" | "pdf" | "image" | "meeting_note" | "decision_record";
+        source?: string;
       }
     | null;
 
@@ -29,7 +30,8 @@ export async function POST(request: Request) {
     content: body.content,
     spaceId: body.spaceId,
     collectionId: body.collectionId,
-    type: body.type
+    type: body.type,
+    source: body.source
   });
   return NextResponse.json({ ok: true, item }, { status: 201 });
 }

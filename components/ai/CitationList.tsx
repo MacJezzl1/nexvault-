@@ -3,6 +3,8 @@ type Props = {
     itemId: string;
     title: string;
     quote: string;
+    spaceName: string;
+    itemType: string;
   }>;
 };
 
@@ -17,7 +19,11 @@ export function CitationList({ citations }: Props) {
             href={`/items/${citation.itemId}`}
             className="rounded-2xl border border-black/10 bg-sand px-4 py-3 text-sm"
           >
-            <strong>{citation.title}</strong>
+            <div className="flex flex-wrap gap-2 text-xs text-steel">
+              <span className="rounded-full bg-white px-2 py-1">{citation.spaceName}</span>
+              <span className="rounded-full bg-white px-2 py-1">{citation.itemType}</span>
+            </div>
+            <strong className="mt-3 block">{citation.title}</strong>
             <p className="mt-1 text-steel">{citation.quote}</p>
           </a>
         ))}

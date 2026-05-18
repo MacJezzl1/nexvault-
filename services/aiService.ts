@@ -1,6 +1,6 @@
 import { suggestedQuestions } from "@/lib/mock-data";
-import { readVaultState } from "@/lib/vault-store";
-import type { ConversationAnswer } from "@/lib/vault-types";
+import { hybridSearch } from "@/lib/search";
+import type { ConversationAnswer, RetrievalScope } from "@/lib/vault-types";
 
 function pickConfidence(matchCount: number): ConversationAnswer["confidence"] {
   if (matchCount >= 3) {
@@ -12,23 +12,29 @@ function pickConfidence(matchCount: number): ConversationAnswer["confidence"] {
   return "low";
 }
 
-export async function askVault(query = suggestedQuestions[0]) {
-  const state = await readVaultState();
-  const normalized = query.toLowerCase();
-  const matches = state.items.filter((item) => {
-    const haystack = `${item.title} ${item.summary} ${item.content} ${item.tags.join(" ")}`.toLowerCase();
-    return normalized
-      .split(/\s+/)
-      .filter(Boolean)
-      .some((term) => haystack.includes(term));
-  });
+function describeScope(scope: RetrievalScope) {
+  const parts = [
+    scope.spaceId ? "the selected space" : "",
+    scope.type ? `${scope.type.replaceAll("_", " ")} items` : "",
+    scope.tag ? `tagged ${scope.tag}` : "",
+    scope.trustLevel ? `trust level ${scope.trustLevel}` : "",
+    scope.sensitivity ? `sensitivity ${scope.sensitivity}` : ""
+  ].filter(Boolean);
 
-  const topMatches = (matches.length ? matches : state.items).slice(0, 3);
+  return parts.length ? ` within ${parts.join(", ")}` : "";
+}
+
+export async function askVault(scope: RetrievalScope | string = suggestedQuestions[0]) {
+  const normalizedScope = typeof scope === "string" ? { query: scope } : scope;
+  const query = normalizedScope.query?.trim() || suggestedQuestions[0];
+  const result = await hybridSearch({ ...normalizedScope, query }, "vault-personal-1");
+  const topMatches = result.results.slice(0, 3);
+  const scopedLabel = describeScope(normalizedScope);
 
   const answer =
     topMatches.length === 0
-      ? "The vault does not contain enough evidence to answer that."
-      : `Based on ${topMatches.length} vault source${topMatches.length > 1 ? "s" : ""}, the strongest pattern is that ${topMatches
+      ? `The vault does not contain enough evidence to answer that${scopedLabel}. Try widening the scope or removing one of the filters.`
+      : `Using ${topMatches.length} retrieved source${topMatches.length > 1 ? "s" : ""}${scopedLabel}, the current evidence suggests ${topMatches
           .map((item) => item.summary.charAt(0).toLowerCase() + item.summary.slice(1))
           .join(" ")}`;
 
@@ -36,12 +42,16 @@ export async function askVault(query = suggestedQuestions[0]) {
     ok: true,
     query,
     answer,
-    confidence: pickConfidence(matches.length),
+    confidence: pickConfidence(topMatches.length),
     citations: topMatches.map((item) => ({
-      itemId: item.id,
+      itemId: item.itemId,
       title: item.title,
-      quote: item.content.split(". ").slice(0, 2).join(". ")
+      quote: item.excerpt,
+      spaceName: item.spaceName,
+      itemType: item.type
     })),
-    followUps: suggestedQuestions.filter((prompt) => prompt !== query).slice(0, 3)
+    followUps: suggestedQuestions.filter((prompt) => prompt !== query).slice(0, 3),
+    scope: normalizedScope,
+    retrievalCount: topMatches.length
   };
 }
