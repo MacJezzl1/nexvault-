@@ -16,7 +16,7 @@ type Props = {
 };
 
 export default async function AskPage({ searchParams }: Props) {
-  const query = searchParams?.q ?? suggestedQuestions[0];
+  const query = searchParams?.q ?? "";
   const scope = {
     query,
     spaceId: searchParams?.spaceId || undefined,
@@ -41,7 +41,22 @@ export default async function AskPage({ searchParams }: Props) {
       | "product"
       | undefined
   };
-  const [result, summary] = await Promise.all([askVault(scope), getVaultSummary()]);
+  const [result, summary] = await Promise.all([
+    query.trim()
+      ? askVault(scope)
+      : Promise.resolve({
+          ok: true,
+          query: "",
+          answer: "Ask a question to search your vault with source-cited retrieval.",
+          confidence: "low" as const,
+          citations: [],
+          followUps: suggestedQuestions,
+          scope,
+          retrievalCount: 0,
+          provider: "heuristic" as const
+        }),
+    getVaultSummary()
+  ]);
   const scopeQuery = [
     scope.spaceId ? `spaceId=${encodeURIComponent(scope.spaceId)}` : "",
     scope.type ? `type=${encodeURIComponent(scope.type)}` : "",
@@ -82,6 +97,8 @@ export default async function AskPage({ searchParams }: Props) {
           followUps={result.followUps}
           retrievalCount={result.retrievalCount}
           scopeQuery={scopeQuery ? `&${scopeQuery}` : ""}
+          provider={result.provider}
+          limitMessage={result.limitMessage}
         />
         <SearchFilters
           action="/ask"

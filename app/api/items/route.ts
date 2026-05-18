@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { UsageLimitError } from "@/lib/entitlements";
 import { createNote } from "@/lib/vault-store";
 import { listItems } from "@/services/itemService";
 
@@ -25,13 +26,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const item = await createNote({
-    title: body.title,
-    content: body.content,
-    spaceId: body.spaceId,
-    collectionId: body.collectionId,
-    type: body.type,
-    source: body.source
-  });
-  return NextResponse.json({ ok: true, item }, { status: 201 });
+  try {
+    const item = await createNote({
+      title: body.title,
+      content: body.content,
+      spaceId: body.spaceId,
+      collectionId: body.collectionId,
+      type: body.type,
+      source: body.source
+    });
+    return NextResponse.json({ ok: true, item }, { status: 201 });
+  } catch (error) {
+    if (error instanceof UsageLimitError) {
+      return NextResponse.json(
+        { ok: false, message: `Plan limit reached for ${error.code}.`, limit: error.limit },
+        { status: 403 }
+      );
+    }
+
+    throw error;
+  }
 }

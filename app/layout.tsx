@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getThemeFromCookies } from "@/lib/theme";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "NEXVAULT",
   description: "Private AI memory infrastructure."

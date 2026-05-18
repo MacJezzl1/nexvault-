@@ -9,7 +9,13 @@ import { VaultCard } from "@/components/vault/VaultCard";
 import { suggestedQuestions } from "@/lib/mock-data";
 import { getVaultSummary } from "@/services/vaultService";
 
-export default async function DashboardPage() {
+type Props = {
+  searchParams?: {
+    error?: string;
+  };
+};
+
+export default async function DashboardPage({ searchParams }: Props) {
   await requireUser();
   const { vault, spaces, collections, items, insights, plan, usage } = await getVaultSummary();
   const pinnedSpaces = spaces.filter((space) => space.pinned);
@@ -23,6 +29,13 @@ export default async function DashboardPage() {
           title="Trusted memory with citations"
           description="A seeded prototype of upload, organize, search, ask, and cite."
         />
+        {searchParams?.error ? (
+          <div className="mt-6 rounded-[1.5rem] bg-white/80 p-4 text-sm text-amber shadow-vault dark:bg-neutral-900/80">
+            {searchParams.error === "items"
+              ? `You reached the ${plan.name} item limit. Upgrade your plan to add more content.`
+              : "This action is limited by your current plan."}
+          </div>
+        ) : null}
         <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <VaultCard
             name={vault.name}

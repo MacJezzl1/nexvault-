@@ -77,6 +77,9 @@ export type TimelineEventRecord = {
 export type ConversationAnswer = {
   answer: string;
   confidence: "high" | "medium" | "low";
+  provider?: "openai" | "heuristic";
+  limitReached?: boolean;
+  limitMessage?: string;
   citations: Array<{
     itemId: string;
     title: string;

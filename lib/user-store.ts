@@ -8,6 +8,10 @@ export type StoredUser = {
   email: string;
   passwordHash: string;
   plan: "free" | "pro" | "team" | "business";
+  usage?: {
+    monthlyQuestionCount: number;
+    monthlyQuestionWindow: string;
+  };
   createdAt: string;
 };
 
@@ -32,6 +36,10 @@ const defaultAuthState: AuthState = {
       email: "founder@nexvault.local",
       passwordHash: createHash("sha256").update("demo1234").digest("hex"),
       plan: "free",
+      usage: {
+        monthlyQuestionCount: 0,
+        monthlyQuestionWindow: new Date().toISOString().slice(0, 7)
+      },
       createdAt: new Date("2026-01-01T00:00:00.000Z").toISOString()
     }
   ],
@@ -47,6 +55,10 @@ async function ensureAuthStore() {
   }
 }
 
+function currentUsageWindow() {
+  return new Date().toISOString().slice(0, 7);
+}
+
 async function readAuthState() {
   await ensureAuthStore();
   const raw = await fs.readFile(authPath, "utf8");
@@ -55,7 +67,11 @@ async function readAuthState() {
     ...parsed,
     users: parsed.users.map((user) => ({
       ...user,
-      plan: user.plan ?? "free"
+      plan: user.plan ?? "free",
+      usage: {
+        monthlyQuestionCount: user.usage?.monthlyQuestionCount ?? 0,
+        monthlyQuestionWindow: user.usage?.monthlyQuestionWindow ?? currentUsageWindow()
+      }
     }))
   };
 }
@@ -94,6 +110,10 @@ export async function createUser(input: { name: string; email: string; password:
     email: input.email.toLowerCase(),
     passwordHash: hashPassword(input.password),
     plan: "free",
+    usage: {
+      monthlyQuestionCount: 0,
+      monthlyQuestionWindow: currentUsageWindow()
+    },
     createdAt: new Date().toISOString()
   };
 
@@ -135,5 +155,58 @@ export async function updateUserPlan(
 ) {
   const state = await readAuthState();
   state.users = state.users.map((user) => (user.id === userId ? { ...user, plan } : user));
+  await writeAuthState(state);
+}
+
+export async function getUserUsage(userId: string) {
+  const user = await findUserById(userId);
+  if (!user) {
+    return null;
+  }
+
+  const usageWindow = currentUsageWindow();
+  return {
+    monthlyQuestionCount:
+      user.usage?.monthlyQuestionWindow === usageWindow ? user.usage.monthlyQuestionCount : 0,
+    monthlyQuestionWindow: usageWindow
+  };
+}
+
+export async function resetUserQuestionUsage(userId: string) {
+  const state = await readAuthState();
+  state.users = state.users.map((user) =>
+    user.id === userId
+      ? {
+          ...user,
+          usage: {
+            monthlyQuestionCount: 0,
+            monthlyQuestionWindow: currentUsageWindow()
+          }
+        }
+      : user
+  );
+  await writeAuthState(state);
+}
+
+export async function incrementUserQuestionUsage(userId: string) {
+  const state = await readAuthState();
+  const window = currentUsageWindow();
+
+  state.users = state.users.map((user) => {
+    if (user.id !== userId) {
+      return user;
+    }
+
+    const count = user.usage?.monthlyQuestionWindow === window ? user.usage.monthlyQuestionCount : 0;
+
+    return {
+      ...user,
+      usage: {
+        monthlyQuestionCount: count + 1,
+        monthlyQuestionWindow: window
+      }
+    };
+  });
+
   await writeAuthState(state);
 }

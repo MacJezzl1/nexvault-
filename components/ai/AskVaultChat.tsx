@@ -15,6 +15,8 @@ type Props = {
   followUps: string[];
   retrievalCount: number;
   scopeQuery?: string;
+  provider?: string;
+  limitMessage?: string;
 };
 
 export function AskVaultChat({
@@ -24,7 +26,9 @@ export function AskVaultChat({
   citations,
   followUps,
   retrievalCount,
-  scopeQuery
+  scopeQuery,
+  provider,
+  limitMessage
 }: Props) {
   return (
     <section className="rounded-[2rem] bg-white/80 p-6 shadow-vault">
@@ -38,9 +42,13 @@ export function AskVaultChat({
           <span className="rounded-full bg-sand px-2 py-1">
             Retrieved {retrievalCount} source{retrievalCount === 1 ? "" : "s"}
           </span>
+          <span className="rounded-full bg-sand px-2 py-1">
+            Provider {provider ?? "heuristic"}
+          </span>
         </div>
         <p className="mt-3 text-sm uppercase tracking-[0.3em] text-steel">Answer</p>
         <p className="mt-3 leading-7 text-steel">{answer}</p>
+        {limitMessage ? <p className="mt-4 text-sm text-amber">{limitMessage}</p> : null}
       </div>
       <CitationList citations={citations} />
       <SuggestedQuestions prompts={followUps} scopeQuery={scopeQuery} />

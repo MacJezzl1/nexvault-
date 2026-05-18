@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { ensureCanCreateItem, ensureCanCreateSpace } from "@/lib/entitlements";
 import { defaultInsights, defaultVaultState } from "@/lib/mock-data";
 import { processDocument } from "@/lib/document-processing";
 import type {
@@ -157,6 +158,7 @@ export async function createSpace(input: {
   pinned?: boolean;
 }) {
   const state = await readVaultState();
+  await ensureCanCreateSpace(state.spaces.length);
   const spaceId = buildId("space", input.name);
   const collectionId = buildId("collection", `${input.name}-general`);
 
@@ -239,6 +241,7 @@ export async function createNote(input: {
   source?: string;
 }) {
   const state = await readVaultState();
+  await ensureCanCreateItem(state.items.length);
   const now = new Date().toISOString();
   const collection = input.collectionId
     ? state.collections.find((candidate) => candidate.id === input.collectionId)

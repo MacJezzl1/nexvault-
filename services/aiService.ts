@@ -1,5 +1,9 @@
+import { answerWithCitations } from "@/lib/ai";
+import { getCurrentUser } from "@/lib/auth";
+import { ensureCanAskQuestion, UsageLimitError } from "@/lib/entitlements";
 import { suggestedQuestions } from "@/lib/mock-data";
 import { hybridSearch } from "@/lib/search";
+import { incrementUserQuestionUsage } from "@/lib/user-store";
 import type { ConversationAnswer, RetrievalScope } from "@/lib/vault-types";
 
 function pickConfidence(matchCount: number): ConversationAnswer["confidence"] {
@@ -12,36 +16,48 @@ function pickConfidence(matchCount: number): ConversationAnswer["confidence"] {
   return "low";
 }
 
-function describeScope(scope: RetrievalScope) {
-  const parts = [
-    scope.spaceId ? "the selected space" : "",
-    scope.type ? `${scope.type.replaceAll("_", " ")} items` : "",
-    scope.tag ? `tagged ${scope.tag}` : "",
-    scope.trustLevel ? `trust level ${scope.trustLevel}` : "",
-    scope.sensitivity ? `sensitivity ${scope.sensitivity}` : ""
-  ].filter(Boolean);
-
-  return parts.length ? ` within ${parts.join(", ")}` : "";
-}
-
 export async function askVault(scope: RetrievalScope | string = suggestedQuestions[0]) {
   const normalizedScope = typeof scope === "string" ? { query: scope } : scope;
   const query = normalizedScope.query?.trim() || suggestedQuestions[0];
+
+  try {
+    await ensureCanAskQuestion();
+  } catch (error) {
+    if (error instanceof UsageLimitError) {
+      return {
+        ok: false,
+        query,
+        answer: `You have reached the monthly AI question limit for the ${error.planId} plan. Upgrade your plan to continue using Ask Vault.`,
+        confidence: "low" as const,
+        citations: [],
+        followUps: ["Open pricing", "Review recent items", "Narrow the search scope"],
+        scope: normalizedScope,
+        retrievalCount: 0,
+        provider: "heuristic" as const,
+        limitReached: true,
+        limitMessage: `Monthly question limit: ${error.limit}`
+      };
+    }
+
+    throw error;
+  }
+
   const result = await hybridSearch({ ...normalizedScope, query }, "vault-personal-1");
   const topMatches = result.results.slice(0, 3);
-  const scopedLabel = describeScope(normalizedScope);
+  const generated = await answerWithCitations(query, topMatches);
+  const user = await getCurrentUser();
 
-  const answer =
-    topMatches.length === 0
-      ? `The vault does not contain enough evidence to answer that${scopedLabel}. Try widening the scope or removing one of the filters.`
-      : `Using ${topMatches.length} retrieved source${topMatches.length > 1 ? "s" : ""}${scopedLabel}, the current evidence suggests ${topMatches
-          .map((item) => item.summary.charAt(0).toLowerCase() + item.summary.slice(1))
-          .join(" ")}`;
+  if (user) {
+    await incrementUserQuestionUsage(user.id);
+  }
 
   return {
     ok: true,
     query,
-    answer,
+    answer:
+      topMatches.length === 0
+        ? "The vault does not contain enough evidence to answer that. Try widening the scope or removing one of the filters."
+        : generated.answer,
     confidence: pickConfidence(topMatches.length),
     citations: topMatches.map((item) => ({
       itemId: item.itemId,
@@ -52,6 +68,7 @@ export async function askVault(scope: RetrievalScope | string = suggestedQuestio
     })),
     followUps: suggestedQuestions.filter((prompt) => prompt !== query).slice(0, 3),
     scope: normalizedScope,
-    retrievalCount: topMatches.length
+    retrievalCount: topMatches.length,
+    provider: generated.provider
   };
 }

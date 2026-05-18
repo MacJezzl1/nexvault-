@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { UsageLimitError } from "@/lib/entitlements";
 import { createCollection, createNote, createSpace, deleteItem } from "@/lib/vault-store";
 
 function getString(formData: FormData, key: string) {
@@ -17,11 +18,19 @@ export async function createSpaceAction(formData: FormData) {
     return;
   }
 
-  await createSpace({
-    name,
-    description,
-    pinned: formData.get("pinned") === "on"
-  });
+  try {
+    await createSpace({
+      name,
+      description,
+      pinned: formData.get("pinned") === "on"
+    });
+  } catch (error) {
+    if (error instanceof UsageLimitError) {
+      redirect(`/spaces?error=${error.code}`);
+    }
+
+    throw error;
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/spaces");
@@ -40,14 +49,22 @@ export async function createNoteAction(formData: FormData) {
     return;
   }
 
-  await createNote({
-    title,
-    content,
-    spaceId,
-    collectionId: collectionId || undefined,
-    type: (type as "note" | "pdf" | "image" | "meeting_note" | "decision_record") || "note",
-    source: source || undefined
-  });
+  try {
+    await createNote({
+      title,
+      content,
+      spaceId,
+      collectionId: collectionId || undefined,
+      type: (type as "note" | "pdf" | "image" | "meeting_note" | "decision_record") || "note",
+      source: source || undefined
+    });
+  } catch (error) {
+    if (error instanceof UsageLimitError) {
+      redirect(`/dashboard?error=${error.code}`);
+    }
+
+    throw error;
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/vault");
