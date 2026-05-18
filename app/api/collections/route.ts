@@ -23,6 +23,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const collection = await createCollection(body);
+  const collection = await createCollection({
+    spaceId: body.spaceId,
+    name: body.name,
+    description: body.description
+  });
   return NextResponse.json({ ok: true, collection }, { status: 201 });
 }

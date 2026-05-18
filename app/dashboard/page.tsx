@@ -79,7 +79,7 @@ export default async function DashboardPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {pinnedSpaces.map((space) => (
-              <SpaceCard key={space.id} id={space.id} {...space} />
+              <SpaceCard key={space.id} {...space} />
             ))}
           </div>
         </section>

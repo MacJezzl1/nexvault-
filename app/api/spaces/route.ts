@@ -23,6 +23,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const space = await createSpace(body);
+  const space = await createSpace({
+    name: body.name,
+    description: body.description,
+    pinned: body.pinned
+  });
   return NextResponse.json({ ok: true, space }, { status: 201 });
 }

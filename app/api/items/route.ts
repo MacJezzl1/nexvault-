@@ -24,6 +24,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const item = await createNote(body);
+  const item = await createNote({
+    title: body.title,
+    content: body.content,
+    spaceId: body.spaceId,
+    collectionId: body.collectionId,
+    type: body.type
+  });
   return NextResponse.json({ ok: true, item }, { status: 201 });
 }

@@ -18,7 +18,9 @@ export async function POST(request: Request) {
   }
 
   const item = await createNote({
-    ...body,
+    title: body.title,
+    content: body.content,
+    spaceId: body.spaceId,
     type: "note",
     source: "upload"
   });

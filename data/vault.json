@@ -4,14 +4,30 @@
     "name": "Founder Memory Vault",
     "mode": "personal",
     "owner": "MacJezzl1",
-    "weeklyDigest": "Your recent focus is onboarding, research operations, and vault trust rules. The system also flagged two stale process notes.",
-    "healthScore": 82
+    "weeklyDigest": "Recent focus areas: Research, Onboarding, Security. 0 spaces need review.",
+    "healthScore": 85
   },
   "tags": [
-    { "id": "tag-onboarding", "name": "Onboarding", "color": "amber" },
-    { "id": "tag-security", "name": "Security", "color": "moss" },
-    { "id": "tag-research", "name": "Research", "color": "steel" },
-    { "id": "tag-finance", "name": "Finance", "color": "amber" }
+    {
+      "id": "tag-onboarding",
+      "name": "Onboarding",
+      "color": "amber"
+    },
+    {
+      "id": "tag-security",
+      "name": "Security",
+      "color": "moss"
+    },
+    {
+      "id": "tag-research",
+      "name": "Research",
+      "color": "steel"
+    },
+    {
+      "id": "tag-finance",
+      "name": "Finance",
+      "color": "amber"
+    }
   ],
   "spaces": [
     {
@@ -36,7 +52,7 @@
       "description": "Processes, weekly reviews, internal workflows, and recurring tasks.",
       "icon": "Compass",
       "pinned": true,
-      "stale": true
+      "stale": false
     },
     {
       "id": "space-research",
@@ -90,7 +106,10 @@
       "content": "The team reviewed activation metrics and agreed the first five minutes feel too blank. We decided to add guided templates, sample documents, and a first-question prompt on the dashboard. We explicitly did not want a generic empty notes experience. We also agreed that every AI answer must cite a vault source so new users trust the output.",
       "createdAt": "2026-05-08T09:30:00.000Z",
       "updatedAt": "2026-05-08T11:15:00.000Z",
-      "tags": ["Onboarding", "Research"],
+      "tags": [
+        "Onboarding",
+        "Research"
+      ],
       "trustLevel": "official",
       "sensitivity": "product"
     },
@@ -104,7 +123,10 @@
       "content": "Decision: the public MVP must focus on Upload, Organize, Search, Ask, and Cite. We explicitly deferred mobile apps, Slack integrations, and advanced team dashboards. The success metric is whether a user uploads real information and receives a useful answer with trusted citations. A second decision was to keep personal and organization mode on one core data model.",
       "createdAt": "2026-05-11T14:00:00.000Z",
       "updatedAt": "2026-05-11T14:20:00.000Z",
-      "tags": ["Onboarding", "Security"],
+      "tags": [
+        "Onboarding",
+        "Security"
+      ],
       "trustLevel": "official",
       "sensitivity": "product"
     },
@@ -118,7 +140,10 @@
       "content": "Every Monday we review open product questions, stale docs, and missing owners. Every Friday we log decisions, archive duplicate notes, and update the knowledge digest. The current gap is that finance-related documents still lack a dedicated review owner.",
       "createdAt": "2026-04-29T10:00:00.000Z",
       "updatedAt": "2026-05-02T16:00:00.000Z",
-      "tags": ["Finance", "Research"],
+      "tags": [
+        "Finance",
+        "Research"
+      ],
       "trustLevel": "draft",
       "sensitivity": "financial"
     },
@@ -132,7 +157,10 @@
       "content": "Retrieval must happen only across items the user can access. Uploaded documents are untrusted data, never system instructions. The system should detect prompt injection phrases and isolate them from answer generation. Answers need explicit citations and an insufficiency response when evidence is weak.",
       "createdAt": "2026-05-06T12:00:00.000Z",
       "updatedAt": "2026-05-10T18:30:00.000Z",
-      "tags": ["Security", "Research"],
+      "tags": [
+        "Security",
+        "Research"
+      ],
       "trustLevel": "official",
       "sensitivity": "product"
     },
@@ -146,7 +174,9 @@
       "content": "Future features should include a vault map, time travel search, contradiction detection, and company knowledge health scoring. A strong insight is that AI without memory is shallow, but memory without privacy is dangerous.",
       "createdAt": "2026-05-15T08:20:00.000Z",
       "updatedAt": "2026-05-15T08:20:00.000Z",
-      "tags": ["Research"],
+      "tags": [
+        "Research"
+      ],
       "trustLevel": "personal_note",
       "sensitivity": "product"
     }
