@@ -1,14 +1,42 @@
+import { ItemCard } from "@/components/vault/ItemCard";
+import { getCollectionById } from "@/lib/mock-data";
+import { getVaultSummary } from "@/services/vaultService";
+
 type Props = {
   params: { collectionId: string };
 };
 
-export default function CollectionPage({ params }: Props) {
+export default async function CollectionPage({ params }: Props) {
+  const collection = getCollectionById(params.collectionId);
+  const { items } = await getVaultSummary();
+
+  if (!collection) {
+    return (
+      <main className="mx-auto max-w-5xl px-6 py-10">
+        <h1 className="text-4xl font-semibold">Collection not found</h1>
+      </main>
+    );
+  }
+
+  const collectionItems = items.filter((item) => item.collectionId === params.collectionId);
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-4xl font-semibold">Collection {params.collectionId}</h1>
+      <h1 className="text-4xl font-semibold">{collection.name}</h1>
       <p className="mt-3 text-steel">
-        Use this page for list views, bulk actions, summaries, and export.
+        {collection.description}
       </p>
+      <div className="mt-8 grid gap-4">
+        {collectionItems.map((item) => (
+          <ItemCard
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            type={item.type}
+            summary={item.summary}
+          />
+        ))}
+      </div>
     </main>
   );
 }

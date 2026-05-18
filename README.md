@@ -16,6 +16,17 @@ NEXVAULT is a private AI knowledge vault that helps people and companies store, 
 - Ask Vault chat with source citations
 - Export and delete controls
 
+## Prototype status
+
+The current repository includes a seeded working prototype:
+
+- Dashboard with pinned spaces, recent items, and weekly digest
+- Search page with keyword scoring and result cards
+- Ask Vault page with generated answers, confidence, and citations
+- Space, collection, and item detail pages
+- Insights and timeline views
+- JSON route handlers backed by the same prototype data
+
 ## Stack
 
 - Next.js App Router

@@ -1,3 +1,6 @@
-export async function searchVault() {
-  return { ok: true };
+import { hybridSearch } from "@/lib/search";
+
+export async function searchVault(query: string) {
+  const results = await hybridSearch(query, "vault-personal-1");
+  return { ok: true, ...results };
 }

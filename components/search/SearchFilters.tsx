@@ -1,4 +1,4 @@
-const filters = ["Notes", "PDFs", "Images", "Contracts", "Last 30 days"];
+const filters = ["Notes", "PDFs", "Meetings", "Decisions", "Last 30 days"];
 
 export function SearchFilters() {
   return (
