@@ -120,7 +120,8 @@ export async function getInsights(state?: VaultState): Promise<InsightRecord[]> 
 
   const tags = current.items.flatMap((item) => item.tags);
   const repeated = tags.find(
-    (tag, index) => tags.indexOf(tag) !== index && ["Security", "Research", "Onboarding"].includes(tag)
+    (tag, index) =>
+      tags.indexOf(tag) !== index && ["Security", "Research", "Onboarding"].includes(tag)
   );
 
   if (repeated) {
