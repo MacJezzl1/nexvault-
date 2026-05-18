@@ -1,5 +1,5 @@
-import { demoInsights } from "@/lib/mock-data";
+import { getInsights } from "@/lib/vault-store";
 
 export async function listInsights() {
-  return demoInsights;
+  return getInsights();
 }

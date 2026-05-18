@@ -1,6 +1,8 @@
-const tags = ["Research", "Decision", "Sensitive", "Contract"];
+type Props = {
+  tags?: string[];
+};
 
-export function TagPicker() {
+export function TagPicker({ tags = ["Research", "Decision", "Sensitive", "Contract"] }: Props) {
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((tag) => (

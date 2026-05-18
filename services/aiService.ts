@@ -1,6 +1,8 @@
-import { demoItems, suggestedQuestions, type DemoConversationAnswer } from "@/lib/mock-data";
+import { suggestedQuestions } from "@/lib/mock-data";
+import { readVaultState } from "@/lib/vault-store";
+import type { ConversationAnswer } from "@/lib/vault-types";
 
-function pickConfidence(matchCount: number): DemoConversationAnswer["confidence"] {
+function pickConfidence(matchCount: number): ConversationAnswer["confidence"] {
   if (matchCount >= 3) {
     return "high";
   }
@@ -11,8 +13,9 @@ function pickConfidence(matchCount: number): DemoConversationAnswer["confidence"
 }
 
 export async function askVault(query = suggestedQuestions[0]) {
+  const state = await readVaultState();
   const normalized = query.toLowerCase();
-  const matches = demoItems.filter((item) => {
+  const matches = state.items.filter((item) => {
     const haystack = `${item.title} ${item.summary} ${item.content} ${item.tags.join(" ")}`.toLowerCase();
     return normalized
       .split(/\s+/)
@@ -20,7 +23,7 @@ export async function askVault(query = suggestedQuestions[0]) {
       .some((term) => haystack.includes(term));
   });
 
-  const topMatches = (matches.length ? matches : demoItems).slice(0, 3);
+  const topMatches = (matches.length ? matches : state.items).slice(0, 3);
 
   const answer =
     topMatches.length === 0

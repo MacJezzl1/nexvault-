@@ -37,11 +37,16 @@ export default async function ItemPage({ params }: Props) {
           <p className="mt-6 whitespace-pre-wrap leading-7 text-steel">{item.content}</p>
         </section>
         <div className="space-y-6">
-          <MetadataPanel />
+          <MetadataPanel
+            sourceType={item.type}
+            trustLevel={item.trustLevel}
+            sensitivity={item.sensitivity}
+            createdAt={formatDate(item.createdAt)}
+          />
           <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-vault">
             <p className="text-sm uppercase tracking-[0.3em] text-steel">Tags</p>
             <div className="mt-4">
-              <TagPicker />
+              <TagPicker tags={item.tags} />
             </div>
           </section>
         </div>

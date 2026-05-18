@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { demoTimeline } from "@/lib/mock-data";
+import { readVaultState } from "@/lib/vault-store";
 
 export async function GET() {
-  return NextResponse.json({ ok: true, audit: demoTimeline });
+  const state = await readVaultState();
+  return NextResponse.json({ ok: true, audit: state.timeline });
 }

@@ -1,5 +1,4 @@
 import { ItemCard } from "@/components/vault/ItemCard";
-import { getCollectionById } from "@/lib/mock-data";
 import { getVaultSummary } from "@/services/vaultService";
 
 type Props = {
@@ -7,8 +6,8 @@ type Props = {
 };
 
 export default async function CollectionPage({ params }: Props) {
-  const collection = getCollectionById(params.collectionId);
-  const { items } = await getVaultSummary();
+  const { collections, items } = await getVaultSummary();
+  const collection = collections.find((candidate) => candidate.id === params.collectionId);
 
   if (!collection) {
     return (

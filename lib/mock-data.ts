@@ -1,67 +1,13 @@
-export type DemoTag = {
-  id: string;
-  name: string;
-  color: string;
-};
-
-export type DemoItem = {
-  id: string;
-  collectionId: string;
-  spaceId: string;
-  title: string;
-  type: "note" | "pdf" | "image" | "decision_record" | "meeting_note";
-  summary: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  tags: string[];
-  trustLevel: "official" | "draft" | "personal_note" | "imported";
-  sensitivity: "normal" | "financial" | "contract" | "product";
-};
-
-export type DemoCollection = {
-  id: string;
-  spaceId: string;
-  name: string;
-  description: string;
-};
-
-export type DemoSpace = {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  pinned: boolean;
-  stale: boolean;
-};
-
-export type DemoInsight = {
-  id: string;
-  title: string;
-  detail: string;
-  severity: "high" | "medium" | "low";
-  kind: "gap" | "duplicate" | "stale" | "contradiction" | "pattern";
-};
-
-export type DemoTimelineEvent = {
-  id: string;
-  date: string;
-  title: string;
-  description: string;
-  type: "upload" | "decision" | "meeting" | "insight";
-  itemId?: string;
-  spaceId?: string;
-};
-
-export type DemoConversationAnswer = {
-  answer: string;
-  confidence: "high" | "medium" | "low";
-  citations: Array<{
-    itemId: string;
-    quote: string;
-  }>;
-  followUps: string[];
-};
+import type {
+  CollectionRecord,
+  ConversationAnswer,
+  InsightRecord,
+  ItemRecord,
+  SpaceRecord,
+  TagRecord,
+  TimelineEventRecord,
+  VaultState
+} from "@/lib/vault-types";
 
 export const demoVault = {
   id: "vault-personal-1",
@@ -71,16 +17,16 @@ export const demoVault = {
   weeklyDigest:
     "Your recent focus is onboarding, research operations, and vault trust rules. The system also flagged two stale process notes.",
   healthScore: 82
-};
+} as const;
 
-export const demoTags: DemoTag[] = [
+export const demoTags: TagRecord[] = [
   { id: "tag-onboarding", name: "Onboarding", color: "amber" },
   { id: "tag-security", name: "Security", color: "moss" },
   { id: "tag-research", name: "Research", color: "steel" },
   { id: "tag-finance", name: "Finance", color: "amber" }
 ];
 
-export const demoSpaces: DemoSpace[] = [
+export const demoSpaces: SpaceRecord[] = [
   {
     id: "space-inbox",
     name: "Inbox",
@@ -115,7 +61,7 @@ export const demoSpaces: DemoSpace[] = [
   }
 ];
 
-export const demoCollections: DemoCollection[] = [
+export const demoCollections: CollectionRecord[] = [
   {
     id: "collection-capture",
     spaceId: "space-inbox",
@@ -148,7 +94,7 @@ export const demoCollections: DemoCollection[] = [
   }
 ];
 
-export const demoItems: DemoItem[] = [
+export const demoItems: ItemRecord[] = [
   {
     id: "item-onboarding-retro",
     collectionId: "collection-onboarding",
@@ -231,7 +177,7 @@ export const demoItems: DemoItem[] = [
   }
 ];
 
-export const demoInsights: DemoInsight[] = [
+export const defaultInsights: InsightRecord[] = [
   {
     id: "insight-gap-budget",
     title: "Missing budget support for onboarding work",
@@ -255,7 +201,7 @@ export const demoInsights: DemoInsight[] = [
   }
 ];
 
-export const demoTimeline: DemoTimelineEvent[] = [
+export const demoTimeline: TimelineEventRecord[] = [
   {
     id: "event-1",
     date: "2026-05-15T08:20:00.000Z",
@@ -301,14 +247,13 @@ export const suggestedQuestions = [
   "Summarize the product strategy across my vault."
 ];
 
-export function getSpaceById(spaceId: string) {
-  return demoSpaces.find((space) => space.id === spaceId);
-}
+export const defaultVaultState: VaultState = {
+  vault: { ...demoVault },
+  tags: demoTags,
+  spaces: demoSpaces,
+  collections: demoCollections,
+  items: demoItems,
+  timeline: demoTimeline
+};
 
-export function getCollectionById(collectionId: string) {
-  return demoCollections.find((collection) => collection.id === collectionId);
-}
-
-export function getItemById(itemId: string) {
-  return demoItems.find((item) => item.id === itemId);
-}
+export type DemoConversationAnswer = ConversationAnswer;

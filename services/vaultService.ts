@@ -1,23 +1,10 @@
-import {
-  demoCollections,
-  demoInsights,
-  demoItems,
-  demoSpaces,
-  demoTimeline,
-  demoVault
-} from "@/lib/mock-data";
+import { getVaultSnapshot } from "@/lib/vault-store";
 
 export async function createVault() {
-  return { ok: true, vault: demoVault };
+  const { vault } = await getVaultSnapshot();
+  return { ok: true, vault };
 }
 
 export async function getVaultSummary() {
-  return {
-    vault: demoVault,
-    spaces: demoSpaces,
-    collections: demoCollections,
-    items: demoItems,
-    insights: demoInsights,
-    timeline: demoTimeline
-  };
+  return getVaultSnapshot();
 }

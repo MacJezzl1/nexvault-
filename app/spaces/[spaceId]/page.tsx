@@ -1,6 +1,7 @@
+import { createNoteAction } from "@/app/actions";
 import { CollectionTree } from "@/components/vault/CollectionTree";
 import { ItemCard } from "@/components/vault/ItemCard";
-import { getSpaceById } from "@/lib/mock-data";
+import { UploadDropzone } from "@/components/vault/UploadDropzone";
 import { getVaultSummary } from "@/services/vaultService";
 
 type Props = {
@@ -8,8 +9,8 @@ type Props = {
 };
 
 export default async function SpaceDetailPage({ params }: Props) {
-  const { collections, items } = await getVaultSummary();
-  const space = getSpaceById(params.spaceId);
+  const { spaces, collections, items } = await getVaultSummary();
+  const space = spaces.find((candidate) => candidate.id === params.spaceId);
 
   if (!space) {
     return (
@@ -26,6 +27,16 @@ export default async function SpaceDetailPage({ params }: Props) {
     <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="text-4xl font-semibold">{space.name}</h1>
       <p className="mt-3 text-steel">{space.description}</p>
+      <div className="mt-8">
+        <UploadDropzone
+          action={createNoteAction}
+          spaces={[{ id: space.id, name: space.name }]}
+          collections={spaceCollections.map((collection) => ({
+            id: collection.id,
+            name: collection.name
+          }))}
+        />
+      </div>
       <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <CollectionTree
           collections={spaceCollections.map((collection) => ({

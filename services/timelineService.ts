@@ -1,5 +1,6 @@
-import { demoTimeline } from "@/lib/mock-data";
+import { readVaultState } from "@/lib/vault-store";
 
 export async function listTimelineEvents() {
-  return demoTimeline;
+  const state = await readVaultState();
+  return state.timeline;
 }

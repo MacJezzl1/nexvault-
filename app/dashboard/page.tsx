@@ -1,3 +1,4 @@
+import { createNoteAction } from "@/app/actions";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ItemCard } from "@/components/vault/ItemCard";
@@ -8,7 +9,7 @@ import { suggestedQuestions } from "@/lib/mock-data";
 import { getVaultSummary } from "@/services/vaultService";
 
 export default async function DashboardPage() {
-  const { vault, spaces, items, insights } = await getVaultSummary();
+  const { vault, spaces, collections, items, insights } = await getVaultSummary();
   const pinnedSpaces = spaces.filter((space) => space.pinned);
   const staleSpaces = spaces.filter((space) => space.stale).length;
 
@@ -47,7 +48,14 @@ export default async function DashboardPage() {
         </div>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-          <UploadDropzone />
+          <UploadDropzone
+            action={createNoteAction}
+            spaces={spaces.map((space) => ({ id: space.id, name: space.name }))}
+            collections={collections.map((collection) => ({
+              id: collection.id,
+              name: collection.name
+            }))}
+          />
           <section className="rounded-[2rem] bg-white/80 p-6 shadow-vault">
             <p className="text-sm uppercase tracking-[0.3em] text-steel">Recent items</p>
             <div className="mt-4 grid gap-4 md:grid-cols-2">

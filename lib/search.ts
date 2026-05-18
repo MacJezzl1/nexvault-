@@ -1,4 +1,4 @@
-import { demoItems, demoSpaces } from "@/lib/mock-data";
+import { readVaultState } from "@/lib/vault-store";
 
 export type SearchResult = {
   itemId: string;
@@ -12,6 +12,7 @@ export type SearchResult = {
 };
 
 export async function hybridSearch(query: string, vaultId: string) {
+  const state = await readVaultState();
   const normalized = query.trim().toLowerCase();
   const terms = normalized.split(/\s+/).filter(Boolean);
 
@@ -20,11 +21,11 @@ export async function hybridSearch(query: string, vaultId: string) {
       query,
       vaultId,
       strategy: "full-text + semantic fallback",
-      results: demoItems.map((item) => ({
+      results: state.items.map((item) => ({
         itemId: item.id,
         title: item.title,
         summary: item.summary,
-        spaceName: demoSpaces.find((space) => space.id === item.spaceId)?.name ?? "Unknown",
+        spaceName: state.spaces.find((space) => space.id === item.spaceId)?.name ?? "Unknown",
         score: 0.5,
         matchedTerms: [],
         type: item.type,
@@ -33,7 +34,7 @@ export async function hybridSearch(query: string, vaultId: string) {
     };
   }
 
-  const results = demoItems
+  const results = state.items
     .map((item) => {
       const haystack = `${item.title} ${item.summary} ${item.content} ${item.tags.join(" ")}`.toLowerCase();
       const matchedTerms = terms.filter((term) => haystack.includes(term));
@@ -47,7 +48,7 @@ export async function hybridSearch(query: string, vaultId: string) {
         itemId: item.id,
         title: item.title,
         summary: item.summary,
-        spaceName: demoSpaces.find((space) => space.id === item.spaceId)?.name ?? "Unknown",
+        spaceName: state.spaces.find((space) => space.id === item.spaceId)?.name ?? "Unknown",
         score,
         matchedTerms,
         type: item.type,

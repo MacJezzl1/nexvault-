@@ -27,6 +27,16 @@ The current repository includes a seeded working prototype:
 - Insights and timeline views
 - JSON route handlers backed by the same prototype data
 
+## Local persistence
+
+The app now uses a repo-backed JSON store at `data/vault.json` for the first real MVP loop:
+
+- create spaces
+- save notes and decision records
+- update timeline automatically
+- recalculate vault digest and health
+- search and Ask Vault against persisted content
+
 ## Stack
 
 - Next.js App Router
